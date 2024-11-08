@@ -30,10 +30,8 @@
 1. Ensure both laptops are connected to the same mobile hotspot. 
 2. Run the Python FTP server script on one laptop. 
 3. Obtain the IP address of the laptop running the server. 
-4. On the other laptop, run an FTP client program like FileZilla or use the 
-command line. 
-5. Connect to the server using the IP address and default FTP port (21). 
-6. Enter the username and password if required. 
-7. Now, you can upload or download files securely between the laptops using 
+4. Connect to the server using the IP address and default FTP port (21). 
+5. Enter the username and password. 
+6. Now, you can upload or download files securely between the laptops using 
 the FTP client. 
 
