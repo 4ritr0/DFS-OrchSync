@@ -3,7 +3,7 @@
 
 ## Steps to generate server.key server.cer server.csr 
 
-1. remove any existing files 
+1. Remove any existing files 
     - rm server.key server.cer server.csr
 
 2. Generate a new private key that's already password protected
@@ -23,3 +23,4 @@
 5. Add the password in the ftpserver.py file to the password variable (using env varibles is preferred)
 
 6. Dont upload these new key and certificates to github
+
