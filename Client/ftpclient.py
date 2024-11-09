@@ -59,7 +59,7 @@ def quit_connection():
 
 # Setup secure connection
 HOST = '127.0.0.1'
-PORT = 12000
+PORT = 21
 
 sock = socket(AF_INET, SOCK_STREAM)
 ssl_context = ssl.create_default_context()
