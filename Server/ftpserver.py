@@ -1,15 +1,26 @@
+#!/usr/bin/env python3
+import os
 import ssl
 from socket import AF_INET, SOCK_STREAM, socket
 
-password = "****" #Change this to the password you set your certificate with 
-
-def get(conn, filename):
+server_storage_path="../server/server_storage"
+password = "****" 
+def get(conn, filename, username):
     try:
-        with open(filename, 'r') as infile:
-            for line in infile:
-                conn.sendall(line.encode('utf-8'))    
+        client_dir= os.path.join(server_storage_path, username)
+        file_path = os.path.join(client_dir, filename)
+        file_extension = os.path.splitext(filename)[1].lower()
         end_message = "EOF-STOP"
-        conn.sendall(end_message.encode('utf-8'))
+        if file_extension in ['.jpg','.jpeg','.png']:
+            with open(file_path, 'rb') as infile:
+                for line in infile:
+                    conn.sendall(line)
+            conn.sendall(end_message.encode('utf-8'))
+        else:
+            with open(file_path, 'r') as infile:
+                for line in infile:
+                    conn.sendall(line.encode('utf-8'))
+            conn.sendall(end_message.encode('utf-8'))
     except Exception as e:
         print(e)
         error_message = ("There has been an error sending the requested file. "
@@ -17,20 +28,33 @@ def get(conn, filename):
         conn.sendall(error_message.encode('utf-8'))
 
 
-def put(conn, data):
+def put(conn, data, username):
     filename = data.split(' ')[1]
-    print("Received File: "+filename)
-
     try:
-        data = conn.recv(1024).decode("utf-8")
-        with open(filename, 'w') as outfile:
-            while(data):
-                outfile.write(data)
-                data = conn.recv(1024).decode("utf-8")
-                if "EOF-STOP" in data:
-                    stop_point = data.find("EOF-STOP")
-                    outfile.write(data[:stop_point])
-                    return data[stop_point+8:]
+        client_dir= os.path.join(server_storage_path, username)
+        if not os.path.exists(client_dir):
+            os.makedirs(client_dir)
+        file_path = os.path.join(client_dir, filename)
+        file_extension = os.path.splitext(filename)[1].lower()
+        if file_extension in ['.jpg','.jpeg','.png']:
+            with open(file_path, 'wb') as outfile:
+                while True:
+                    data = conn.recv(1024)
+                    if b"EOF-STOP" in data:
+                        stop_point = data.find(b"EOF-STOP")
+                        outfile.write(data[:stop_point])        
+                        return data[stop_point+8:]
+                    outfile.write(data)
+        else:
+            with open(file_path, 'w') as outfile:
+                while True:
+                    data = conn.recv(1024).decode("utf-8")
+                    if "EOF-STOP" in data:
+                        stop_point = data.find("EOF-STOP")
+                        outfile.write(data[:stop_point])
+                        return data[stop_point+8:] 
+                    outfile.write(data) 
+        print("Received File: "+filename)  
     except Exception as e:
         print(e)
         error_message = "There has been an error receiving the requested file."
@@ -38,7 +62,60 @@ def put(conn, data):
         return ""
 
 
-command_list = ["QUIT","CLOSE", "OPEN", "GET","PUT"]
+def view(conn, data, username):
+    filename = data.split(' ')[1]
+    try:
+        client_dir= os.path.join(server_storage_path, username)
+        file_path = os.path.join(client_dir, filename)
+        file_extension = os.path.splitext(filename)[1].lower()
+        end_message = "EOF-STOP"
+        if file_extension in ['.jpg','.jpeg','.png']:
+            with open(file_path, 'rb') as infile:
+                data= infile.read(1024)
+                conn.sendall(data)
+            conn.sendall(end_message.encode('utf-8'))
+        else:
+            with open(file_path, 'r') as infile:
+                data= infile.read(1024)
+                conn.sendall(data.encode('utf-8'))
+            conn.sendall(end_message.encode('utf-8'))
+    except Exception as e:
+        print(e)
+        error_message = ("There has been an error sending the requested file. "
+                         + filename + " might not exist")
+        conn.sendall(error_message.encode('utf-8'))
+
+
+def delete(conn, data, username):
+    filename = data.split(' ')[1]
+    try:
+        client_dir= os.path.join(server_storage_path, username)
+        file_path = os.path.join(client_dir, filename)
+        os.remove(file_path)
+        response= ("File "+filename+" deleted successfully.")
+        conn.sendall(response.encode("utf-8"))
+    except FileNotFoundError:
+        error_message = f"Error: File '{filename}' does not exist."
+        conn.sendall(error_message.encode("utf-8"))
+    except Exception as e:
+        print(e)
+        error_message = ("There has been an error deleting the requested file. "
+                         + filename + " might not exist")
+        conn.sendall(error_message.encode('utf-8'))
+
+def list_file(conn, username):
+    try:
+        client_dir= os.path.join(server_storage_path, username)
+        files=os.listdir(client_dir)
+        file_list = "\n".join(files)
+        response = ("Files on server:" +"\n" +file_list +"\n"+"EOF-STOP")
+        conn.sendall(response.encode("utf-8"))
+    except Exception as e:
+        print(e)
+        error_message = ("There has been an error listing the requested files.")
+        conn.sendall(error_message.encode('utf-8'))
+
+command_list = ["QUIT","CLOSE", "OPEN", "GET","PUT", "VIEW", "LIST", "DELETE"]
 
 HOST = '127.0.0.1' #Change this to the IP address of the server/Host
 PORT = 21 #FTP is uauully on port 21 so dont change this
@@ -48,7 +125,7 @@ sock = socket(AF_INET, SOCK_STREAM)
 #password = input("Enter certificate password: ") 
 ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 ssl_context.check_hostname = False
-ssl_context.load_cert_chain(certfile="../server.cer", keyfile="../server.key", password = password)  
+ssl_context.load_cert_chain(certfile="/home/archisha/BD_proj/server/server.cer", keyfile="/home/archisha/BD_proj/server/server.key", password = password)  
 
 ssl_sock = ssl_context.wrap_socket(sock, server_side=True)
 
@@ -107,10 +184,17 @@ while True:
 
             if command == "GET":
                 filename = data.split(' ')[1]
-                get(conn, filename)
+                get(conn, filename, username='abc')
 
             if command == "PUT":
-                remainder = put(conn, data)
+                remainder = put(conn, data, username='abc')
+            if command == "VIEW":
+                view(conn, data, username='abc')
+            if command == "LIST":
+                list_file(conn, username='abc')
+            if command == "DELETE":
+                delete(conn, data, username='abc')
+            
 
         else:
             print(data)
@@ -119,3 +203,4 @@ while True:
     print("Disconnected from:", addr)
   
 ssl_sock.close()
+
