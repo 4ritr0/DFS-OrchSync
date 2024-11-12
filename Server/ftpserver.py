@@ -3,7 +3,7 @@ import os
 import ssl
 from socket import AF_INET, SOCK_STREAM, socket
 
-server_storage_path="../server/server_storage"
+server_storage_path="../Server/server_storage"
 password = "****" 
 def get(conn, filename, username):
     try:
@@ -125,7 +125,7 @@ sock = socket(AF_INET, SOCK_STREAM)
 #password = input("Enter certificate password: ") 
 ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 ssl_context.check_hostname = False
-ssl_context.load_cert_chain(certfile="/home/archisha/BD_proj/server/server.cer", keyfile="/home/archisha/BD_proj/server/server.key", password = password)  
+ssl_context.load_cert_chain(certfile="server.cer", keyfile="server.key", password = password)  
 
 ssl_sock = ssl_context.wrap_socket(sock, server_side=True)
 
@@ -152,13 +152,7 @@ while True:
         if command in command_list:
             if command == "QUIT":
                 print("Client quitting")
-                conn.sendall(command.encode("utf-8"))
-                conn.close()
-                break
-            
-            if command == "CLOSE":
-                print("Client disconnecting")
-                conn.sendall(command.encode("utf-8"))
+                #conn.sendall(command.encode("utf-8"))
                 conn.close()
                 break
 

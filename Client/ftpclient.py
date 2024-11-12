@@ -26,8 +26,8 @@ def get_file():
                 with open(filename, 'wb') as outfile:
                     while True:
                         data = ssl_sock.recv(1024)
-                        if "EOF-STOP" in data:
-                            stop_point = data.find("EOF-STOP")
+                        if b"EOF-STOP" in data:
+                            stop_point = data.find(b"EOF-STOP")
                             outfile.write(data[:stop_point])        
                             break        
                         outfile.write(data)
@@ -55,7 +55,6 @@ def put_file():
         try:
             ssl_sock.sendall(f"PUT {filename}".encode("utf-8"))
             file_extension = os.path.splitext(filename)[1].lower()
-            print(file_extension)
             if file_extension in ['.jpg','.jpeg','.png']:
                 with open(filename, 'rb') as infile:
                     for line in infile:
@@ -65,7 +64,6 @@ def put_file():
                 with open(filename, 'r') as infile:
                     print("file opened")
                     for line in infile:
-                        print(line)
                         ssl_sock.sendall(line.encode('utf-8'))
                 ssl_sock.sendall("EOF-STOP".encode('utf-8'))
             
