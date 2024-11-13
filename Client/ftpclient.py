@@ -21,9 +21,14 @@ def get_file():
     if filename:
         try:
             ssl_sock.sendall(f"GET {filename}".encode("utf-8"))
+            first = ssl_sock.recv(1024)
+            if first.startswith(b"ERROR:"):
+                print(first.decode("utf-8"))
+                return 
             file_extension = os.path.splitext(filename)[1].lower()
             if file_extension in ['.jpg','.jpeg','.png']:
                 with open(filename, 'wb') as outfile:
+                    outfile.write(first)
                     while True:
                         data = ssl_sock.recv(1024)
                         if b"EOF-STOP" in data:
@@ -82,16 +87,16 @@ def view_file():
             if file_extension in ['.jpg','.jpeg','.png']:
                     data = ssl_sock.recv(1024)
                     print(f"First 1024 bytes of '{filename}':")
-                    if b"EOF-STOP" in data:
-                        stop_point = data.find(b"EOF-STOP")
-                        print(data[:stop_point]) 
+                    # if b"EOF-STOP" in data:
+                    #     stop_point = data.find(b"EOF-STOP")
+                    #     print(data[:stop_point]) 
                     print(data)       
             else:
                     data = ssl_sock.recv(1024).decode("utf-8")
                     print(f"First 1024 bytes of '{filename}':")
-                    if "EOF-STOP" in data:
-                        stop_point = data.find("EOF-STOP")
-                        print(data[:stop_point])  
+                    # if "EOF-STOP" in data:
+                    #     stop_point = data.find("EOF-STOP")
+                    #     print(data[:stop_point])  
                     print(data)             
         except Exception as e:
             print("Error:", e)
