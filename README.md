@@ -1,4 +1,4 @@
-# 🚀 Distributed File Orchestration & Synchronization 📁✨
+# 🚀 Distributed File System Orchestration & Synchronization 📁✨
  
 This is a secure, SSL-enabled, Python-based file transfer system that lets you **upload, download, view, and manage files** between distributed clients and a central server—just like your own private cloud! ☁️🔒  
 Whether you're sharing images, documents, or any files, our system ensures your data is transferred safely and efficiently.  
