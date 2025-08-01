@@ -1,38 +1,75 @@
-# RR-Team-61-distributed-file-orchestration-and-synchronization
+# 🚀 Distributed File Orchestration & Synchronization 📁✨
+ 
+This is a secure, SSL-enabled, Python-based file transfer system that lets you **upload, download, view, and manage files** between distributed clients and a central server—just like your own private cloud! ☁️🔒  
+Whether you're sharing images, documents, or any files, our system ensures your data is transferred safely and efficiently.  
+Perfect for teams, students, or anyone who wants a simple, robust, and secure file sync solution! 🌍🤝
 
-## Steps to generate server.key server.cer server.csr
+---
 
-1. Remove any existing files
+## 🛠️ How to Generate SSL Keys & Certificates
 
-   - rm server.key server.cer server.csr
+Follow these steps to create your own secure keys and certificates for the server:
 
-2. Generate a new private key that's already password protected
+1. **Remove any existing key/certificate files**
 
-   - openssl genrsa -aes256 -out server.key 2048
-   - When prompted, enter a password of your choice (Don't forget this password)
+   ```bash
+   rm server.key server.cer server.csr
+   ```
 
-3. Generate the .csr file with a protected key
+2. **Generate a new password-protected private key**
 
-   - openssl req -new -key server.key -out server.csr
-   - You'll be prompted for:
-   - The password you just set
-   - Certificate information (country, state, etc.) (Hit enter to enable the default options)
+   ```bash
+   openssl genrsa -aes256 -out server.key 2048
+   ```
 
-4. Create the self-signed certificate:
+   > _When prompted, enter a password of your choice. **Don't forget this password!**_
 
-   - openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.cer
+3. **Generate the Certificate Signing Request (.csr)**
+
+   ```bash
+   openssl req -new -key server.key -out server.csr
+   ```
+
+   - Enter the password you just set
+   - Fill in certificate info (country, state, etc.) or just press Enter for defaults
+
+4. **Create a self-signed certificate**
+
+   ```bash
+   openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.cer
+   ```
+
    - Enter the same password again
 
-5. Add the password in the ftpserver.py file to the password variable (using env varibles is preferred)
+5. **Add your password to the [`Server/ftpserver.py`](Server/ftpserver.py) file**
 
-6. Dont upload these new key and certificates to github
+   - _Tip: Use environment variables for better security!_
 
-## Steps to run the file on the two terminals
+6. **🚫 Never upload your keys or certificates to GitHub!**
 
-1. Ensure both laptops are connected to the same mobile hotspot.
-2. Run the Python FTP server script on one laptop.
-3. Obtain the IP address of the laptop running the server.
-4. Connect to the server using the IP address and default FTP port (21).
-5. Enter the username and password.
-6. Now, you can upload or download files securely between the laptops using
-   the FTP client.
+---
+
+## 💻 How to Run the Project
+
+1. **Connect both devices to the same network** (e.g., mobile hotspot) 📶
+2. **Start the FTP server** on one device:
+   ```bash
+   python Server/ftpserver.py
+   ```
+3. **Find the server's IP address** (e.g., using `ipconfig` or `ifconfig`)
+4. **Connect from the client** using the server's IP and port **21**
+5. **Enter your username and password** when prompted
+6. **Enjoy secure file transfers!**
+   - Upload, download, view, and manage files with ease! 🚀
+
+---
+
+## ✨ Features
+
+- 🔒 **SSL/TLS Encryption** for all file transfers
+- 📤 **Upload** and 📥 **Download** any file type
+- 👀 **View** file contents directly from the client
+- 🗑️ **Delete** unwanted files
+- 📜 **List** all files on the server
+- 🖼️ Supports images, text, and more!
+
