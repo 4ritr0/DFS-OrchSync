@@ -4,7 +4,7 @@ import ssl
 from socket import AF_INET, SOCK_STREAM, socket
 
 server_storage_path="../Server/server_storage"
-password = "Aritro123!@#" 
+password = os.getend("FTP_CERT_PASSWORD") 
 
 def get(conn, filename, username):
     try:
